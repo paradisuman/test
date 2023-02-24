@@ -3,17 +3,18 @@
 #include "user/user.h"
 #include "kernel/fs.h"
 
+//a little changes,but names are still bad!
 char*
-fmt_subname(char *path)
+fmt_subname(const char *path)
 {
   static char buf[DIRSIZ+1];
-  char *p;
+  const char *restrict p;
 
   // Find first character after last slash.
-  for(p=path+strlen(path); p >= path && *p != '/'; p--)
+  for(p = path+strlen(path); p >= path && *p != '/'; p--)
     ;
   p++;
-
+  
   memmove(buf, p, strlen(p)+1);
   
   //memset(buf+strlen(p), ' ', DIRSIZ-strlen(p));
@@ -22,8 +23,7 @@ fmt_subname(char *path)
 }
 
 void
-find(char *path,char *tar){
-  //printf("%s %s\n",path,fmt_subname(path));
+find(const char *restrict path,const char *restrict tar){
   char buf[512];
   char *p;
   int fd;
@@ -32,27 +32,25 @@ find(char *path,char *tar){
 	
   if((fd = open(path, 0)) < 0){
     fprintf(2, "find: cannot open %s\n", path);
-    return;
+    exit(1);
   }
 
   if(fstat(fd, &st) < 0){
     fprintf(2, "find: cannot stat %s\n", path);
     close(fd);
-    return;
+    exit(1);
   }
 
-  switch(st.type){
-  //judge the name
-  case T_FILE:
+  if(st.type == T_FILE){
+    //judge the name
     if(strcmp(fmt_subname(path),tar)==0)
       printf("%s\n",path);
-    break;
-
+  }
   //recursion to sub_dir
-  case T_DIR:
+  else if(st.type == T_DIR){
     if(strlen(path) + 1 + DIRSIZ + 1 > sizeof buf){
       printf("ls: path too long\n");
-      break;
+      return;
     }
     
     //refer buf to path
@@ -64,25 +62,24 @@ find(char *path,char *tar){
     
     //find all sub_dir
     while(read(fd, &de, sizeof(de)) == sizeof(de)){
-      if(de.inum == 0 || strcmp(de.name, ".")==0 || strcmp(de.name,"..")==0)
+      if(de.inum == 0 || strcmp(de.name, ".") == 0 || strcmp(de.name, "..") == 0)
         continue;
      
       //path to: tem/[de_name]
       memmove(p, de.name, strlen(de.name));
-      p[strlen(de.name)] = 0;
+      p[strlen(de.name)] = '\0';
       find(buf, tar);
     }
-    break;
   }
   close(fd);
 }
 
 int main(int argc,char *argv[]){
-  if(argc!=3){
+  if(argc != 3){
     printf("Usage:find [dir] [name]\n");
-    exit(0);
+    exit(1);
   }
   
-  find(argv[1],argv[2]);
+  find(argv[1], argv[2]);
   exit(0);
 }
