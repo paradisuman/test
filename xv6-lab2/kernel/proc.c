@@ -302,6 +302,8 @@ fork(void)
   np->cwd = idup(p->cwd);
 
   safestrcpy(np->name, p->name, sizeof(p->name));
+  
+  np->trace_mask = p->trace_mask;
 
   pid = np->pid;
 
@@ -653,4 +655,18 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int
+getNproc()
+{
+  //struct proc proc[NPROC];
+  struct proc *p;
+  int uproc_sum = 0;
+  
+  for(p = proc; p < &proc[NPROC]; p++){
+    if(p->state != 0)uproc_sum++;
+  }
+  
+  return uproc_sum;
 }
