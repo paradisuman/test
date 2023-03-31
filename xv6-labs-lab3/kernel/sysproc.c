@@ -81,6 +81,42 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  uint64 v_addr;
+  int check_nums;
+  uint64 user_addr;
+  uint64 mask = 0;
+  struct proc *my_proc = myproc();
+ 
+  
+  if(argaddr(0, &v_addr) < 0)
+    return -1;
+  if(argint(1, &check_nums) < 0)
+    return -1;
+  if(argaddr(2, &user_addr) < 0)
+    return -1;
+  //mask is 64bit
+  if(check_nums > 64)
+    return -1;
+    
+    
+  v_addr = PGROUNDDOWN(v_addr);
+  for(int i = 0; i < check_nums; i++)
+  {
+    pte_t *pte;
+    pte = walk(my_proc->pagetable, v_addr, 1);
+    if((*pte & PTE_V) == 0)
+    {
+      panic("not valid va!");
+    }
+    if((*pte)>>6 & 1){
+      mask = mask | (1<<i);
+      *pte = (*pte) ^ (1<<6);
+    }
+    v_addr += PGSIZE;
+  }
+  
+  if(copyout(my_proc->pagetable, user_addr, (char *)&mask, sizeof(mask)) < 0)
+      return -1;
   return 0;
 }
 #endif
