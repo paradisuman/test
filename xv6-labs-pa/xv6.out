@@ -1,17 +1,12 @@
 
 xv6 kernel is booting
 
-hart 1 starting
 hart 2 starting
+hart 1 starting
 init: starting sh
-$ mkdir pnBC1kua
-$ echo > pnBC1kua/qLaJ6vTs
-$ mkdir pnBC1kua/c3rnRD51
-$ echo > pnBC1kua/c3rnRD51/qLaJ6vTs
-$ mkdir gZaknQgK
-$ echo > gZaknQgK/qLaJ6vTs
-$ find . qLaJ6vTs
-./pnBC1kua/qLaJ6vTs
-./pnBC1kua/c3rnRD51/qLaJ6vTs
-./gZaknQgK/qLaJ6vTs
-$ qemu-system-riscv64: terminating on signal 15 from pid 85061 (make)
+$ sh < xargstest.sh
+$ echo DONE
+$ $ $ $ $ hello
+hello
+hello
+$ $ DONEqemu-system-riscv64: terminating on signal 15 from pid 103195 (make)

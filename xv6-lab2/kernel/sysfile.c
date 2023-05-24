@@ -110,6 +110,8 @@ sys_fstat(void)
   struct file *f;
   uint64 st; // user pointer to struct stat
 
+  //argfd: turn fd to pfd and pf
+  //argaddr: fetch a addr to st
   if(argfd(0, 0, &f) < 0 || argaddr(1, &st) < 0)
     return -1;
   return filestat(f, st);
