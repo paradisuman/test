@@ -132,3 +132,50 @@ printfinit(void)
   initlock(&pr.lock, "pr");
   pr.locking = 1;
 }
+
+void print_hex(uint64 num) {
+    char hex[17];
+    int index = 15;
+    while(num && index >= 0) {
+        int temp = num % 16;
+        if(temp < 10)
+            temp = temp + 48;
+        else
+            temp = temp + 87;
+        hex[index] = temp;
+        num = num / 16;
+        index--;
+    }
+    while(index >= 0) {
+        hex[index] = '0';
+        index--;
+    }
+    hex[16] = '\0';
+    printf("0x%s\n", hex);
+}
+
+void backtrace() {
+  uint64 fp, retaddr;
+  uint64 _min, _max;
+  // 获取当前的帧指针
+  fp = r_fp();
+  _min = PGROUNDDOWN(fp);
+  _max = PGROUNDUP(fp);
+  printf("backtrace:\n");
+  while(fp != 0 && fp >= _min && fp < _max) {
+    // 从帧指针中获取返回地址
+    retaddr = *((uint64*)(fp - 8));
+
+    // 打印返回地址
+    print_hex(retaddr);
+    
+    // 检查下一个帧指针是否在范围内
+    if(fp - 16 >= _min && fp - 16 < _max) {
+      // 移动到下一个帧指针
+      fp = *((uint64*)(fp - 16));
+    } else {
+      break;
+    }
+  }
+}
+
